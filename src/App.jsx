@@ -13,9 +13,9 @@ function App() {
       console.log(json);
       setPokemon(json);
       setPokename(json.name);
-      setPokephoto(json.sprites.front_default)
+      setPokephoto(json.sprites.versions['generation-v']['black-white'].animated['front_default'])
     }
-    fetchData('25')
+    fetchData('pichu')
   }, [])
 
   return (
