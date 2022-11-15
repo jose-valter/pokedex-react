@@ -3,6 +3,7 @@ import '../src/App.css';
 
 function App() {
   const [pokemon, setPokemon] = React.useState([]);
+  const [pokeid, setPokeid] = React.useState('1');
   const [pokename, setPokename] = React.useState(null);
   const [pokephoto, setPokephoto] = React.useState(null);
   const [search, setSearch] = React.useState('');
@@ -12,12 +13,32 @@ function App() {
     try{
       const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
       const json = await response.json();
-      console.log(json);
       setPokemon(json);
-      setPokename(json.name);
-      setPokephoto(json.sprites.versions['generation-v']['black-white'].animated['front_default'])
+      setPokeid(json.id);
+      try{
+        let name = await json.name;
+        if (json.name.length > 15){
+          name = json.name.slice(0,10)+'...'
+        }
+        setPokename(name)
+      }catch(erro){
+        console.log(erro)
+      }
+      try{
+        let photo = await json.sprites.versions['generation-v']['black-white'].animated['front_default'];
+        if(photo){
+          setPokephoto(photo)
+        }else{
+          setPokephoto(json.sprites.other['official-artwork']['front_default'])
+        }
+      } catch(erro){
+        console.log(erro)
+      }
+     
     } catch(error){
       alert('Ocorreu um erro. Por favor, procure por um Pokémon válido');
+      setSearch('');
+    } finally{
       setSearch('');
     }
   }
@@ -30,10 +51,26 @@ function App() {
     setSearch('');
   }
 
+  function previousPoke(){
+    if(pokeid > 1){
+      let newPoke = pokeid - 1;
+      setPokeid(newPoke)
+    }
+   
+  }
+
+  function nextPoke(){
+    if(pokeid < 905){
+      let newPoke = pokeid + 1;
+      setPokeid(newPoke)
+    }
+   
+  }
+
 
   React.useEffect(() => {
-    fetchData('1')
-  }, [])
+    fetchData(pokeid)
+  }, [pokeid])
 
 
 
@@ -45,7 +82,7 @@ function App() {
       <img className='pokemon' src={pokephoto} alt={pokemon.id} />
 
       <h1 className='pokeData'>
-        <span className='pokeNumber'>{pokemon.id}</span> - {''}
+        <span className='pokeNumber'>{pokeid}</span> - {''}
         <span className='pokeName'>{pokename}</span>
       </h1>
 
@@ -54,8 +91,8 @@ function App() {
       </form>
 
       <div className='buttons'>
-        <button className="button btn-prev">Prev &lt;</button>
-        <button className="button btn-next">Next &gt;</button>
+        <button className="button" onClick={previousPoke}> &lt; Prev</button>
+        <button className="button" onClick={nextPoke}>Next &gt;</button>
       </div>
 
       
